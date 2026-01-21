@@ -28,7 +28,7 @@ jobs:
           source: "target/*.jar"
           target: "/opt/myapp/"
 
-      - name: Rename jar + restart service
+       - name: Deploy on EC2 (rename + restart)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -36,10 +36,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            cd /opt/myapp/target
-            JAR=$(ls *.jar | head -n 1)
+            sudo mkdir -p /opt/myapp /opt/myapp/target
 
-            sudo mv "$JAR" /opt/myapp/app.jar
-            
+            JAR=$(ls -t /opt/myapp/target/*.jar | head -n 1)
+            echo "Latest JAR: $JAR"
+
+            sudo cp "$JAR" /opt/myapp/app.jar
+            sudo chown deploy:deploy /opt/myapp/app.jar
+
+            sudo systemctl daemon-reload
             sudo systemctl restart myapp
             sudo systemctl --no-pager status myapp
