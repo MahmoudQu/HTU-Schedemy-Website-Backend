@@ -37,21 +37,14 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set -euo pipefail
-
-            sudo mkdir -p /opt/myapp /opt/myapp/target
-
-            echo "JARs on server:"
+            
+            set -euo pipefail 
+            cd /opt/myapp
+          
             ls -lah /opt/myapp/target || true
-
-            # pick newest jar
-            JAR="$(ls -t /opt/myapp/target/*.jar | head -n 1)"
-            echo "Using: $JAR"
-
-            # make stable path for systemd
-            sudo cp "$JAR" /opt/myapp/app.jar
-            sudo chown deploy:deploy /opt/myapp/app.jar
-
+            
+            JAR="$(ls -t /opt/myapp/target/*jar | head -n 1)"
+            echo "Using $JAR"
+            mv "$JAR" /opt/myapp/edusched.jar
             sudo systemctl daemon-reload
             sudo systemctl restart myapp
-            sudo systemctl --no-pager status myapp
