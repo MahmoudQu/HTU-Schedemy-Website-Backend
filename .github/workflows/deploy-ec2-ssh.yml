@@ -30,7 +30,7 @@ jobs:
           source: "target/*.jar"
           target: "/opt/myapp/"
 
-      - name: Activate jar as app.jar + restart service
+      - name: Activate jar as edusched.jar + restart service
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
